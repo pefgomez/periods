@@ -41,7 +41,8 @@
 ;; The PERIODS library is fully described in the PDF documentation which
 ;; accompanies this source code.  Please refer there for complete details.
 
-(declaim (optimize (debug 3) (safety 3) (speed 1) (space 0)))
+#-:debug-periods(declaim (optimize (safety 3) (speed 1) (space 0) (debug 0)))
+#+:debug-periods(declaim (optimize (safety 0) (speed 0) (space 0) (debug 3) (compilation-speed 0)))
 
 (defpackage :periods
   (:use :common-lisp :local-time #+:periods-use-series :series)
@@ -101,7 +102,7 @@
 (defparameter *days-in-months* #(31 28 31 30 31 30 31 31 30 31 30 31))
 
 ;; Snippet courtesy of Xach on #lisp
-(declaim (inline leapp))
+#-:debug-periods(declaim (inline leapp))
 (defun leapp (year)
   "Return T if YEAR falls on a leap year."
   (cond ((zerop (mod year 400)) t)
@@ -109,7 +110,7 @@
         ((zerop (mod year 4)) t)
         (t nil)))
 
-(declaim (inline current-year))
+#-:debug-periods(declaim (inline current-year))
 (defun current-year ()
   "Return the current year as a FIXNUM."
   (nth-value 5 (get-decoded-time)))
@@ -122,7 +123,7 @@
 	(incf days)
 	days)))
 
-(declaim (inline nanosecond-part microsecond-part millisecond-part))
+#-:debug-periods(declaim (inline nanosecond-part microsecond-part millisecond-part))
 
 (defun nanosecond-part (bignum)
   (nth-value 1 (floor bignum 1000)))
@@ -131,7 +132,7 @@
 (defun millisecond-part (bignum)
   (nth-value 0 (floor bignum 1000000)))
 
-(declaim (inline set-nanosecond-part set-microsecond-part
+#-:debug-periods(declaim (inline set-nanosecond-part set-microsecond-part
                                  set-millisecond-part))
 
 (defun set-nanosecond-part (bignum nsecs)
@@ -269,7 +270,7 @@ function PREVIOUS-TIME."
 		(setf year this-year))))
 	(encode-timestamp nsec ss mm hh day month year))))
 
-(declaim (inline year-of
+#-:debug-periods(declaim (inline year-of
                                  month-of
                                  day-of
                                  hour-of
@@ -298,14 +299,14 @@ function PREVIOUS-TIME."
 (defun nanosecond-of (fixed-time)
   (nanosecond-part (nth-value 0 (decode-timestamp fixed-time))))
 
-(declaim (inline day-of-week))
+#-:debug-periods(declaim (inline day-of-week))
 (defun day-of-week (fixed-time)
   "Return the day of the week associated with a given FIXED-TIME.
 The result is a FIXNUM with 0 representing Sunday, through 6 on Saturday."
   (declare (type fixed-time fixed-time))
   (nth-value 7 (decode-timestamp fixed-time)))
 
-(declaim (inline falls-on-weekend-p))
+#-:debug-periods(declaim (inline falls-on-weekend-p))
 (defun falls-on-weekend-p (fixed-time)
   "Return T if the given FIXED-TIME occurs on a Saturday or Sunday."
   (let ((dow (day-of-week fixed-time)))
@@ -324,7 +325,7 @@ The result is a FIXNUM with 0 representing Sunday, through 6 on Saturday."
   (microseconds 0 :type integer)
   (nanoseconds 0 :type integer))
 
-(declaim (inline duration))
+#-:debug-periods(declaim (inline duration))
 (defun duration (&rest args)
   "Create a DURATION object.
 
@@ -553,7 +554,7 @@ If days has been added before years, the result would have been
 		(skip-nanosecond (* identity (duration-nanoseconds duration))))))
 	(encode-timestamp nsec ss mm hh day month year))))
 
-(declaim (inline subtract-time))
+#-:debug-periods(declaim (inline subtract-time))
 (defun subtract-time (fixed-time duration)
   (add-time fixed-time duration :reverse t))
 
@@ -578,7 +579,7 @@ If days has been added before years, the result would have been
 	(values (+ left (- bound remainder))
 		(+ 1 quotient)))))
 
-(declaim (inline add-years subtract-years))
+#-:debug-periods(declaim (inline add-years subtract-years))
 (defun add-years (duration years)
   (incf (duration-years duration) years)
   duration)
@@ -586,7 +587,7 @@ If days has been added before years, the result would have been
   (decf (duration-years duration) years)
   duration)
 
-(declaim (inline add-months subtract-months))
+#-:debug-periods(declaim (inline add-months subtract-months))
 (defun add-months (duration months)
   (incf (duration-months duration) months)
   duration)
@@ -594,7 +595,7 @@ If days has been added before years, the result would have been
   (decf (duration-months duration) months)
   duration)
 
-(declaim (inline add-days subtract-days))
+#-:debug-periods(declaim (inline add-days subtract-days))
 (defun add-days (duration days)
   (incf (duration-days duration) days)
   duration)
@@ -602,7 +603,7 @@ If days has been added before years, the result would have been
   (decf (duration-days duration) days)
   duration)
 
-(declaim (inline add-hours subtract-hours))
+#-:debug-periods(declaim (inline add-hours subtract-hours))
 (defun add-hours (duration hours)
   (incf (duration-hours duration) hours)
   duration)
@@ -610,7 +611,7 @@ If days has been added before years, the result would have been
   (decf (duration-hours duration) hours)
   duration)
 
-(declaim (inline add-minutes subtract-minutes))
+#-:debug-periods(declaim (inline add-minutes subtract-minutes))
 (defun add-minutes (duration minutes)
   (incf (duration-minutes duration) minutes)
   duration)
@@ -618,7 +619,7 @@ If days has been added before years, the result would have been
   (decf (duration-minutes duration) minutes)
   duration)
 
-(declaim (inline add-seconds subtract-seconds))
+#-:debug-periods(declaim (inline add-seconds subtract-seconds))
 (defun add-seconds (duration seconds)
   (incf (duration-seconds duration) seconds)
   duration)
@@ -626,7 +627,7 @@ If days has been added before years, the result would have been
   (decf (duration-seconds duration) seconds)
   duration)
 
-(declaim (inline add-milliseconds subtract-milliseconds))
+#-:debug-periods(declaim (inline add-milliseconds subtract-milliseconds))
 (defun add-milliseconds (duration milliseconds)
   (incf (duration-milliseconds duration) milliseconds)
   duration)
@@ -634,7 +635,7 @@ If days has been added before years, the result would have been
   (decf (duration-milliseconds duration) milliseconds)
   duration)
 
-(declaim (inline add-microseconds subtract-microseconds))
+#-:debug-periods(declaim (inline add-microseconds subtract-microseconds))
 (defun add-microseconds (duration microseconds)
   (incf (duration-microseconds duration) microseconds)
   duration)
@@ -642,7 +643,7 @@ If days has been added before years, the result would have been
   (decf (duration-microseconds duration) microseconds)
   duration)
 
-(declaim (inline add-nanoseconds subtract-nanoseconds))
+#-:debug-periods(declaim (inline add-nanoseconds subtract-nanoseconds))
 (defun add-nanoseconds (duration nanoseconds)
   (incf (duration-nanoseconds duration) nanoseconds)
   duration)
@@ -675,7 +676,7 @@ tricky, however, so bear this in mind."
 	(decf sec))
     (duration :seconds sec :nanoseconds nsec)))
 
-(declaim (inline add-duration))
+#-:debug-periods(declaim (inline add-duration))
 (defun add-duration (left right)
   "Add one duration to another."
   (duration :years (+ (duration-years left)
@@ -697,7 +698,7 @@ tricky, however, so bear this in mind."
 	    :nanoseconds (+ (duration-nanoseconds left)
 			    (duration-nanoseconds right))))
 
-(declaim (inline subtract-duration))
+#-:debug-periods(declaim (inline subtract-duration))
 (defun subtract-duration (left right)
   "Subtract one duration from another."
   (duration :years (- (duration-years left)
@@ -719,7 +720,7 @@ tricky, however, so bear this in mind."
 	    :nanoseconds (- (duration-nanoseconds left)
 			    (duration-nanoseconds right))))
 
-(declaim (inline multiply-duration))
+#-:debug-periods(declaim (inline multiply-duration))
 (defun multiply-duration (left multiplier)
   "Add one duration to another."
   (duration :years (* (duration-years left) multiplier)
@@ -732,14 +733,14 @@ tricky, however, so bear this in mind."
 	    :microseconds (* (duration-microseconds left) multiplier)
 	    :nanoseconds (* (duration-nanoseconds left) multiplier)))
 
-(declaim (inline time-stepper))
+#-:debug-periods(declaim (inline time-stepper))
 (defun time-stepper (duration &key (reverse nil))
   (declare (type duration duration))
   (declare (type boolean reverse))
   (lambda (time)
     (add-time time duration :reverse reverse)))
 
-(declaim (inline time-generator))
+#-:debug-periods(declaim (inline time-generator))
 (defun time-generator (start duration &key (reverse nil))
   (declare (type fixed-time start))
   (declare (type duration duration))
@@ -828,17 +829,17 @@ time sequence, or specify an inclusive endpoint."
   (microsecond nil :type (or keyword integer null))
   (nanosecond nil :type (or keyword integer null)))
 
-(declaim (inline relative-time))
+#-:debug-periods(declaim (inline relative-time))
 (defun relative-time (&rest args)
   (apply #'make-relative-time args))
 
-(declaim (inline range-dec))
+#-:debug-periods(declaim (inline range-dec))
 (defun range-dec (value min max)
   (if (= value min)
       max
       (1- value)))
 
-(declaim (inline range-inc))
+#-:debug-periods(declaim (inline range-inc))
 (defun range-inc (value min max)
   (if (= value max)
       min
@@ -904,7 +905,7 @@ time back to you.  If you add enclosing duration for that relative time to Nov
        (or (not (relative-time-day-of-week relative-time))
 	   (= day-of-week (relative-time-day-of-week relative-time)))))
 
-(declaim (inline matches-relative-time-p))
+#-:debug-periods(declaim (inline matches-relative-time-p))
 (defun matches-relative-time-p (fixed-time relative-time)
   "Return T if the given FIXED-TIME honors the details in RELATIVE-TIME."
   (apply #'details-match-relative-time-p
@@ -1116,19 +1117,19 @@ of Apr 29 which falls on a Friday.  Example:
 
 	(encode-timestamp nsec ss mm hh day month year)))))
 
-(declaim (inline previous-time))
+#-:debug-periods(declaim (inline previous-time))
 (defun previous-time (anchor relative-time &key (accept-anchor nil))
   "This function is the reverse of `NEXT-TIME'.  Please look there for more."
   (next-time anchor relative-time :reverse t :accept-anchor accept-anchor))
 
-(declaim (inline relative-time-stepper))
+#-:debug-periods(declaim (inline relative-time-stepper))
 (defun relative-time-stepper (relative-time &key (reverse nil))
   (declare (type relative-time relative-time))
   (declare (type boolean reverse))
   (lambda (time)
     (next-time time relative-time :reverse reverse)))
 
-(declaim (inline relative-time-generator))
+#-:debug-periods(declaim (inline relative-time-generator))
 (defun relative-time-generator (anchor relative-time &key (reverse nil))
   (declare (type relative-time relative-time))
   (declare (type (or fixed-time null) anchor))
@@ -1191,7 +1192,7 @@ reversed time sequence, or specify an inclusive endpoint."
      ,result))
 
 ;; These routines return the present time if it matches
-(declaim (inline this-monday
+#-:debug-periods(declaim (inline this-monday
                                  this-tuesday
                                  this-wednesday
                                  this-thursday
@@ -1222,7 +1223,7 @@ reversed time sequence, or specify an inclusive endpoint."
 	     :accept-anchor t))
 
 ;; These routines do not return the present time if it matches
-(declaim (inline next-monday
+#-:debug-periods(declaim (inline next-monday
                                  next-tuesday
                                  next-wednesday
                                  next-thursday
@@ -1246,7 +1247,7 @@ reversed time sequence, or specify an inclusive endpoint."
   (next-time anchor (relative-time :day-of-week 0) :reverse reverse))
 
 ;; These routines do not return the present time if it matches
-(declaim (inline previous-monday
+#-:debug-periods(declaim (inline previous-monday
                                  previous-tuesday
                                  previous-wednesday
                                  previous-thursday
@@ -1525,7 +1526,7 @@ reversed time sequence, or specify an inclusive endpoint."
   (duration nil)
   (anchor nil))
 
-(declaim (inline time-range))
+#-:debug-periods(declaim (inline time-range))
 (defun time-range (&rest args)
   (apply #'make-time-range args))
 

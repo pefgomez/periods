@@ -1,4 +1,5 @@
-(declaim (optimize (debug 3) (safety 3) (speed 1) (space 0)))
+#-:debug-periods(declaim (optimize (safety 3) (speed 1) (space 0) (debug 0)))
+#+:debug-periods(declaim (optimize (safety 0) (speed 0) (space 0) (debug 3) (compilation-speed 0)))
 
 (in-package :periods)
 
@@ -15,7 +16,7 @@
 
 ;;;_  + FIXED-TIME parsing
 
-(declaim (inline read-integer))
+#-:debug-periods(declaim (inline read-integer))
 (defun read-integer (in &optional length skip-whitespace-p)
   (declare (ignore length skip-whitespace-p))
   (let ((*readtable* *date-readtable*))
