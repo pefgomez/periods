@@ -12,18 +12,18 @@
 ;; Redistribution and use in source and binary forms, with or without
 ;; modification, are permitted provided that the following conditions are
 ;; met:
-;; 
+;;
 ;; - Redistributions of source code must retain the above copyright
 ;;   notice, this list of conditions and the following disclaimer.
-;; 
+;;
 ;; - Redistributions in binary form must reproduce the above copyright
 ;;   notice, this list of conditions and the following disclaimer in the
 ;;   documentation and/or other materials provided with the distribution.
-;; 
+;;
 ;; - Neither the name of New Artisans LLC nor the names of its
 ;;   contributors may be used to endorse or promote products derived from
 ;;   this software without specific prior written permission.
-;; 
+;;
 ;; THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 ;; "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 ;; LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -132,7 +132,7 @@
   (nth-value 0 (floor bignum 1000000)))
 
 (declaim (inline set-nanosecond-part set-microsecond-part
-		 set-millisecond-part))
+                                 set-millisecond-part))
 
 (defun set-nanosecond-part (bignum nsecs)
   (+ (* (floor bignum 1000) 1000) nsecs))
@@ -150,7 +150,7 @@
   For example, if the date is 2007-04-20, and the resolution is :month, the
 date is floored to 2007-04-01.  Anything smaller than the resolution is
 reduced to zero (or 1, if it is a day or month being reduced)."
-  (declare (type local-time fixed-time))
+  (declare (type date fixed-time))
   (multiple-value-bind
 	(nsec ss mm hh day month year)
       (decode-timestamp fixed-time)
@@ -198,7 +198,7 @@ The result is :MINUTE."
 ;;;_ * FIXED-TIME
 
 (deftype fixed-time ()
-  'local-time)
+  'date)
 
 (defun fixed-time (&rest args)
   "Return a fixed point in time relative to the time of the call.  ARGS is a
@@ -270,14 +270,14 @@ function PREVIOUS-TIME."
 	(encode-timestamp nsec ss mm hh day month year))))
 
 (declaim (inline year-of
-		 month-of
-		 day-of
-		 hour-of
-		 minute-of
-		 second-of
-		 millisecond-of
-		 microsecond-of
-		 nanosecond-of))
+                                 month-of
+                                 day-of
+                                 hour-of
+                                 minute-of
+                                 second-of
+                                 millisecond-of
+                                 microsecond-of
+                                 nanosecond-of))
 
 (defun year-of (fixed-time)
   (nth-value 6 (decode-timestamp fixed-time)))
@@ -358,7 +358,7 @@ not just durations."
 			  (setf month 1)
 			  (skip-month (1- remainder)))
 			(incf month skip))))))
-	
+
 	(skip-day (skip)
 	  (if (minusp skip)
 	      (let ((remainder (+ (1- day) skip)))
@@ -377,7 +377,7 @@ not just durations."
 			  (setf day 1)
 			  (skip-day (1- remainder)))
 			(incf day skip))))))
-	
+
 	(skip-hour (skip)
 	  (if (minusp skip)
 	      (let ((remainder (+ hh skip)))
@@ -395,7 +395,7 @@ not just durations."
 			  (setf hh 0)
 			  (skip-hour (1- remainder)))
 			(incf hh skip))))))
-	
+
 	(skip-minute (skip)
 	  (if (minusp skip)
 	      (let ((remainder (+ mm skip)))
@@ -413,7 +413,7 @@ not just durations."
 			  (setf mm 0)
 			  (skip-minute (1- remainder)))
 			(incf mm skip))))))
-	
+
 	(skip-second (skip)
 	  (if (minusp skip)
 	      (let ((remainder (+ ss skip)))
@@ -431,7 +431,7 @@ not just durations."
 			  (setf ss 0)
 			  (skip-second (1- remainder)))
 			(incf ss skip))))))
-	
+
 	(skip-millisecond (skip)
 	  (if (minusp skip)
 	      (let ((remainder (+ (millisecond-part nsec) skip)))
@@ -527,7 +527,7 @@ If days has been added before years, the result would have been
 			     (* (duration-microseconds duration) 1000)
 			     (duration-nanoseconds duration)))
 		 1000000000)
-	(local-time :unix quotient :nsec remainder))
+	(unix-to-timestamp quotient :nsec remainder))
       (multiple-value-bind
 	    (nsec ss mm hh day month year)
 	  (decode-timestamp fixed-time)
@@ -667,10 +667,10 @@ years before days, since this follows human reckoning a bit closer (i.e., a
 person would likely flip to the 2004 calendar and then start counting off
 days, rather than the other way around).  This difference in reckoning can be
 tricky, however, so bear this in mind."
-  (if (local-time< left right)
+  (if (timestamp< left right)
       (rotatef left right))
   (let ((nsec (- (nsec-of left) (nsec-of right)))
-	(sec (- (universal-time left) (universal-time right))))
+	(sec (- (timestamp-to-universal left) (timestamp-to-universal right))))
     (if (minusp nsec)
 	(decf sec))
     (duration :seconds sec :nanoseconds nsec)))
@@ -952,7 +952,7 @@ DURATION are always plural.
 
   The following form resolves to the first sunday of the given year:
 
-  (next-time (previous-time @2007-05-20 
+  (next-time (previous-time @2007-05-20
                             (relative-time :month 1 :day 1))
              (relative-time :week-day 0))
 
@@ -1192,12 +1192,12 @@ reversed time sequence, or specify an inclusive endpoint."
 
 ;; These routines return the present time if it matches
 (declaim (inline this-monday
-		 this-tuesday
-		 this-wednesday
-		 this-thursday
-		 this-friday
-		 this-saturday
-		 this-sunday))
+                                 this-tuesday
+                                 this-wednesday
+                                 this-thursday
+                                 this-friday
+                                 this-saturday
+                                 this-sunday))
 
 (defun this-monday (anchor &key (reverse nil))
   (next-time anchor (relative-time :day-of-week 1) :reverse reverse
@@ -1223,12 +1223,12 @@ reversed time sequence, or specify an inclusive endpoint."
 
 ;; These routines do not return the present time if it matches
 (declaim (inline next-monday
-		 next-tuesday
-		 next-wednesday
-		 next-thursday
-		 next-friday
-		 next-saturday
-		 next-sunday))
+                                 next-tuesday
+                                 next-wednesday
+                                 next-thursday
+                                 next-friday
+                                 next-saturday
+                                 next-sunday))
 
 (defun next-monday (anchor &key (reverse nil))
   (next-time anchor (relative-time :day-of-week 1) :reverse reverse))
@@ -1247,12 +1247,12 @@ reversed time sequence, or specify an inclusive endpoint."
 
 ;; These routines do not return the present time if it matches
 (declaim (inline previous-monday
-		 previous-tuesday
-		 previous-wednesday
-		 previous-thursday
-		 previous-friday
-		 previous-saturday
-		 previous-sunday))
+                                 previous-tuesday
+                                 previous-wednesday
+                                 previous-thursday
+                                 previous-friday
+                                 previous-saturday
+                                 previous-sunday))
 
 (defun previous-monday (anchor)
   (previous-time anchor (relative-time :day-of-week 1)))
